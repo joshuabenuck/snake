@@ -104,40 +104,23 @@ impl<'ttf> Game<'ttf> {
         'running: loop {
             for event in self.event_pump.poll_iter() {
                 match event {
-                    Event::Quit { .. }
-                    | Event::KeyDown {
-                        keycode: Some(Keycode::Escape),
-                        ..
-                    } => break 'running,
+                    Event::Quit { .. } => {
+                        break 'running;
+                    }
                     Event::KeyDown {
-                        keycode: Some(Keycode::Left),
+                        keycode: Some(keycode),
                         ..
                     } => {
-                        if self.direction != Direction::Right {
+                        if keycode == Keycode::Escape {
+                            break 'running;
+                        }
+                        if keycode == Keycode::Left && self.direction != Direction::Right {
                             self.direction = Direction::Left;
-                        }
-                    }
-                    Event::KeyDown {
-                        keycode: Some(Keycode::Right),
-                        ..
-                    } => {
-                        if self.direction != Direction::Left {
+                        } else if keycode == Keycode::Right && self.direction != Direction::Left {
                             self.direction = Direction::Right;
-                        }
-                    }
-                    Event::KeyDown {
-                        keycode: Some(Keycode::Up),
-                        ..
-                    } => {
-                        if self.direction != Direction::Down {
+                        } else if keycode == Keycode::Up && self.direction != Direction::Down {
                             self.direction = Direction::Up;
-                        }
-                    }
-                    Event::KeyDown {
-                        keycode: Some(Keycode::Down),
-                        ..
-                    } => {
-                        if self.direction != Direction::Up {
+                        } else if keycode == Keycode::Down && self.direction != Direction::Up {
                             self.direction = Direction::Down;
                         }
                     }
@@ -438,6 +421,7 @@ impl<'ttf> Game<'ttf> {
         self.canvas.copy(&over_texture, None, Some(over_rect))?;
         self.draw_press_key_msg()?;
         self.canvas.present();
+        self.check_for_key_press();
         ::std::thread::sleep(Duration::from_millis(500));
         loop {
             if self.check_for_key_press() {
